@@ -8,54 +8,62 @@
 class Desktop {
 public:
     Desktop();
+    ~Desktop();
 
-    bool deleteItem(int);
     int intersect(int left, int top, int width, int height);
-    void printItemPositions() const;
+    void printItemPositions();
 
 private:
+    bool deleteItem(int);
+    std::vector<POINT> getItemPositions();
+
     HWND m_progman;
     HWND m_shell;
     HWND m_listView;
 
-    std::vector<POINT> m_itemPositions;
+    HANDLE h_desktopProc;
+    LPVOID p_pointMem;
 };
 
 Desktop::Desktop() {
     m_progman = FindWindow("progman", NULL);
     m_shell = FindWindowEx(m_progman, NULL, "shelldll_defview", NULL);
     m_listView = FindWindowEx(m_shell, NULL, "syslistview32", NULL);
-    int itemCount = ListView_GetItemCount(m_listView);
-
-    m_itemPositions.assign(itemCount, POINT{});
 
     DWORD desktopProcId = 0;
     GetWindowThreadProcessId(m_listView, &desktopProcId);
-    HANDLE desktopProcHandle = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ, FALSE, desktopProcId);
-    if (!desktopProcHandle) {
+    h_desktopProc = OpenProcess(PROCESS_VM_OPERATION | PROCESS_VM_READ, FALSE, desktopProcId);
+    if (!h_desktopProc) {
         throw std::exception("OpenProcess error");
     }
 
-    LPVOID ptMem = (LPPOINT)VirtualAllocEx(desktopProcHandle, NULL, sizeof(POINT), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    if (!ptMem) {
-        CloseHandle(desktopProcHandle);
+    p_pointMem = VirtualAllocEx(h_desktopProc, NULL, sizeof(POINT), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (!p_pointMem) {
+        CloseHandle(h_desktopProc);
         throw std::exception("VirtualAllocEx error");
     }
+}
+
+std::vector<POINT> Desktop::getItemPositions() {
+    int itemCount = ListView_GetItemCount(m_listView);
+    std::vector<POINT> itemPositions(itemCount, POINT{});
 
     for (int i = 0;i < itemCount;i++) {
-        if (!ListView_GetItemPosition(m_listView, i, ptMem)) {
+        if (!ListView_GetItemPosition(m_listView, i, p_pointMem)) {
             throw std::exception("GetItemPosition error");
             continue;
         }
-
-        if (!ReadProcessMemory(desktopProcHandle, ptMem, &m_itemPositions[i], sizeof(POINT), nullptr)) {
+        if (!ReadProcessMemory(h_desktopProc, p_pointMem, &itemPositions[i], sizeof(POINT), NULL)) {
             throw std::exception("ReadProcessMemory error");
             continue;
         }
     }
+    return itemPositions;
+}
 
-    VirtualFreeEx(desktopProcHandle, ptMem, 0, MEM_RELEASE);
-    CloseHandle(desktopProcHandle);
+Desktop::~Desktop() {
+    VirtualFreeEx(h_desktopProc, p_pointMem, 0, MEM_RELEASE);
+    CloseHandle(h_desktopProc);
 }
 
 bool Desktop::deleteItem(int index) {
@@ -65,22 +73,35 @@ bool Desktop::deleteItem(int index) {
     return true;
 }
 
-void Desktop::printItemPositions() const {
-    for (const auto& point : m_itemPositions) {
+void Desktop::printItemPositions() {
+    auto itemPositions = getItemPositions();
+    for (const auto& point : itemPositions) {
         printf("(%d, %d)\n", point.x, point.y);
     }
 }
 
 int Desktop::intersect(int left, int top, int width, int height) {
     int count = 0;
-    for (int i = 0;i < m_itemPositions.size();i++) {
-        int x = m_itemPositions[i].x,
-            y = m_itemPositions[i].y;
-        if (x >= left && x <= left + width &&
-            y >= top && y <= top + height) {
+    while (true) {
+        int index = -1;
+        auto itemPositions = getItemPositions();
+        for (int i = 0;i < itemPositions.size();i++) {
+            int x = itemPositions[i].x,
+                y = itemPositions[i].y;
+            if (x >= left && x <= left + width &&
+                y >= top && y <= top + height) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            printf("Deleting %d: (%d,%d)\n", index, itemPositions[index].x, itemPositions[index].y);
             // Intersection
-            bool res = deleteItem(i);
+            bool res = deleteItem(index);
             count++;
+        } else {
+            break;
         }
     }
     return count;
