@@ -15,10 +15,10 @@ class QwQWidget(QtWidgets.QWidget):
 		self.top = self.screenHeight - 400
 		self.width = 300
 		self.height = 300
+		self.setMouseTracking(True)
 
 		self.follow_mouse = False
 		self.mouse_drag_pos = self.pos()
-		self.randomPosition()
 		self.show()
 
 		self.initUI()
@@ -28,6 +28,7 @@ class QwQWidget(QtWidgets.QWidget):
 		QtCore.Qt.FramelessWindowHint |
 		QtCore.Qt.Tool)
 		self.setGeometry(self.left, self.top, self.width, self.height)
+		self.randomPosition()
 		pic = QtWidgets.QLabel(self)
 		pic.setPixmap(QtGui.QPixmap("image.png"))
 		pic.show()
@@ -35,23 +36,22 @@ class QwQWidget(QtWidgets.QWidget):
 
 
 	#When press left button of mouse, bind the position of mouse and desktop pet 
-	def mousePress(self,event):
+	def mousePressEvent(self,event):
 		if event.button() == QtCore.Qt.LeftButton:
 			self.follow_mouse = True
 			self.mouse_drag_pos = event.globalPos() - self.pos()
 			event.accept()
-			self.setCursor(QtGui.QCursor(Qt.OpenHandCursor))
+
+		if event.button() == QtCore.Qt.RightButton:
+			self.follow_mouse = False
+			event.accept()
+
 
 	#When the mouse move, desktop pet moves
 	def mouseMoveEvent(self, event):
-		if QtCore.Qt.LeftButton and self.follow_mouse:
+		if self.follow_mouse:
 			self.move(event.globalPos() - self.mouse_drag_pos)
 			event.accept()
-
-	#When release mouse, cancel binding
-	def mouseReleaseEvent(self, event):
-		self.follow_mouse = False
-		self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
 
 	def randomPosition(self):
 		screen_geo = self.app.primaryScreen().size()
@@ -59,7 +59,10 @@ class QwQWidget(QtWidgets.QWidget):
 		width = int((screen_geo.width() - pet_geo.width()) * random.random())
 		height = int((screen_geo.height() - pet_geo.height()) * random.random())
 		self.move(width, height)
+	
 
+	def closeEvent(self):
+		quit()
 
 	def quit(self):
 		self.close()
