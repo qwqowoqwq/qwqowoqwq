@@ -18,8 +18,25 @@ class QwQWidget(QtWidgets.QWidget):
 		self.setMouseTracking(True)
 
 		self.follow_mouse = False
+		self.angry1 = False
 		self.mouse_drag_pos = self.pos()
-		self.show()
+
+		self.animation = QtCore.QTimer()
+		self.animation.timeout.connect(self.timerFire)
+		self.animation.start(10)
+		self.oo_state = 0
+
+		#images of oo
+		self.oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
+		self.oo_angry1 = QtGui.QImage.scaled(QtGui.QImage("oo_angry1.png", format = None), self.width, self.height)
+		self.oo_angry2 = QtGui.QImage.scaled(QtGui.QImage("oo_angry2.png", format = None), self.width, self.height)
+		self.oo_eat1 = QtGui.QImage.scaled(QtGui.QImage("oo_eat1.png", format = None), self.width, self.height)
+		self.oo_eat2 = QtGui.QImage.scaled(QtGui.QImage("oo_eat2.png", format = None), self.width, self.height)
+		self.oo_openmouthbig = QtGui.QImage.scaled(QtGui.QImage("oo_openmouthbig.png", format = None), self.width, self.height)
+		self.oo_openmouthsmall = QtGui.QImage.scaled(QtGui.QImage("oo_openmouthsmall.png", format = None), self.width, self.height)
+		self.oo_toothache = QtGui.QImage.scaled(QtGui.QImage("oo_toothache.png", format = None), self.width, self.height)
+		self.oo_walk1 = QtGui.QImage.scaled(QtGui.QImage("oo_walk1.png", format = None), self.width, self.height)
+		self.oo_walk2 = QtGui.QImage.scaled(QtGui.QImage("oo_walk2.png", format = None), self.width, self.height)
 
 		self.initUI()
 
@@ -30,13 +47,29 @@ class QwQWidget(QtWidgets.QWidget):
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		self.randomPosition()
 
-		oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
 		pat = QtGui.QPalette()
-		pat.setBrush(QtGui.QPalette.Background, QtGui.QBrush(QtGui.QPixmap(oo_normal)))
+		pat.setBrush(QtGui.QPalette.Background, QtGui.QBrush(QtGui.QPixmap(self.oo_normal)))
 		self.setPalette(pat)
 
 		self.show()
 
+	def drawPalette(self, picture):
+		pat = QtGui.QPalette()
+		pat.setBrush(QtGui.QPalette.Background, QtGui.QBrush(QtGui.QPixmap(picture)))
+		self.setPalette(pat)
+	
+	def timerFire(self): 
+		if self.follow_mouse:
+			if not self.angry1:
+				self.drawPalette(self.oo_angry1)
+				self.angry1 = True
+			else:
+				self.drawPalette(self.oo_angry2)
+				self.angry1 = False
+		else:
+			if self.oo_state == 0: self.drawPalette(self.oo_normal)
+			else: self.drawPalette(self.oo_toothache)
+		
 
 
 	#When press left button of mouse, bind the position of mouse and desktop pet 
@@ -48,6 +81,7 @@ class QwQWidget(QtWidgets.QWidget):
 
 		if event.button() == QtCore.Qt.RightButton:
 			self.follow_mouse = False
+			self.oo_state = random.randint(0, 1)
 			event.accept()
 
 
@@ -69,6 +103,7 @@ class QwQWidget(QtWidgets.QWidget):
 		quit()
 
 	def quit(self):
+		self.animation.stop()
 		self.close()
 		sys.exit()
 
