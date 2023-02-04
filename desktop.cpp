@@ -96,7 +96,6 @@ int Desktop::intersect(int left, int top, int width, int height) {
         }
 
         if (index != -1) {
-            printf("Deleting %d: (%d,%d)\n", index, itemPositions[index].x, itemPositions[index].y);
             // Intersection
             bool res = deleteItem(index);
             count++;
@@ -107,9 +106,8 @@ int Desktop::intersect(int left, int top, int width, int height) {
     return count;
 }
 
-int main() {
-    Desktop desk;
-    desk.printItemPositions();
+Desktop desktop;
 
-    return 0;
+extern "C" __declspec(dllexport) int __cdecl desktop_intersect(int left, int top, int width, int height) {
+    return desktop.intersect(left, top, width, height);
 }
