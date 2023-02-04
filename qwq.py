@@ -32,6 +32,8 @@ class QwQWidget(QtWidgets.QWidget):
 		self.freewalk = 5000
 		self.count = 500
 		self.walk = 0
+		self.eat = 0
+		self.eatcount = 0
 
 		#images of oo
 		self.oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
@@ -69,13 +71,13 @@ class QwQWidget(QtWidgets.QWidget):
 		if self.walk == 0:
 			self.walk = 1
 			self.drawPalette(self.oo_walk1)
-		if self.walk == 1:
+		elif self.walk == 1:
 			self.walk = 2
 			self.drawPalette(self.oo_normal)
-		if self.walk == 2:
+		elif self.walk == 2:
 			self.walk = 3
 			self.drawPalette(self.oo_walk2)
-		if self.walk == 3:
+		else:
 			self.walk = 0
 			self.drawPalette(self.oo_normal)
 
@@ -86,15 +88,36 @@ class QwQWidget(QtWidgets.QWidget):
 			self.count = 5
 			self.pos().x
 			self.pos().y
-			centerx = self.screenWidth/2
-			centery = self.screenHeight/2
-			diffx = self.pos().x() - centerx
-			diffy = self.pos().y() - centery
-			self.move(diffx/10,diffy/10)
-			self.walkChange()
+			centerx = self.screenWidth//2
+			centery = self.screenHeight//2
+			diffx = centerx - self.pos().x()
+			diffy = centery - self.pos().y()
+			if diffx >= 10 or diffy >= 10:
+				self.move(self.pos().x() + diffx//10, self.pos().y() + diffy//10)
+				self.walkChange()
 
 	def timerFire(self): 
 		# OO Animation render
+		if self.eat != 0: self.eatcount = 500
+		if 490 <= self.eatcount <= 500: 
+			self.drawPalette(self.oo_openmouth_small)
+			self.eatcount -= 1
+			return
+		elif self.eatcount >= 480: 
+			self.drawPalette(self.oo_openmouth_big)
+			self.eatcount -= 1
+			return
+		elif self.eatcount >= 470: 
+			self.drawPalette(self.oo_openmouth_small)
+			self.eatcount -= 1
+			return
+		elif self.eatcount > 0: 
+			self.eatcount -= 1
+			if self.eatcount // 10 % 2 == 0:
+				self.drawPalette(self.oo_eat1)
+			else: 
+				self.drawPalette(self.oo_eat2)
+			return
 		if self.follow_mouse:
 			self.freewalk = 5000
 			if not self.angry1:
@@ -105,17 +128,18 @@ class QwQWidget(QtWidgets.QWidget):
 				self.angry1 = False
 		else:
 			if self.freewalk > 0: self.freewalk -= 10
-			if self.freewalk <= 0: self.ooWalk() 
-			else: self.freewalk = False
+			else: 
+				self.ooWalk() 
+				return
 			if self.oo_state == 0: self.drawPalette(self.oo_normal)
 			else: self.drawPalette(self.oo_toothache)
 
 		# Check file collision
 		if self.follow_mouse:
 			if sys.platform == "win32":
-				count = desktop.desktop_intersect(self.pos().x(), self.pos().y(),
+				self.eat = desktop.desktop_intersect(self.pos().x(), self.pos().y(),
 						self.width, self.height)
-				if count != 0:
+				if self.eat != 0:
 					print((self.pos().x(), self.pos().y(),
 							self.width, self.height))
 					print(count)
