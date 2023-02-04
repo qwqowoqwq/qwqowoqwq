@@ -29,11 +29,14 @@ class QwQWidget(QtWidgets.QWidget):
 		QtCore.Qt.Tool)
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		self.randomPosition()
-		pic = QtWidgets.QLabel(self)
+
 		oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
-		pic.setPixmap(QtGui.QPixmap(oo_normal))
-		pic.show()
+		pat = QtGui.QPalette()
+		pat.setBrush(QtGui.QPalette.Background, QtGui.QBrush(QtGui.QPixmap(oo_normal)))
+		self.setPalette(pat)
+
 		self.show()
+
 
 
 	#When press left button of mouse, bind the position of mouse and desktop pet 
