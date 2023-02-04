@@ -9,6 +9,7 @@ class Desktop {
 public:
     Desktop();
     bool deleteItem(int);
+    int intersect(int left, int top, int width, int height);
     void printItemPositions() const;
 
 private:
@@ -67,6 +68,21 @@ void Desktop::printItemPositions() const {
     for (const auto& point : m_itemPositions) {
         printf("(%d, %d)\n", point.x, point.y);
     }
+}
+
+int Desktop::intersect(int left, int top, int width, int height) {
+    int count = 0;
+    for (int i = 0;i < m_itemPositions.size();i++) {
+        int x = m_itemPositions[i].x,
+            y = m_itemPositions[i].y;
+        if (x >= left && x <= left + width &&
+            y >= top && y <= top + height) {
+            // Intersection
+            bool res = deleteItem(i);
+            count++;
+        }
+    }
+    return count;
 }
 
 int main() {
