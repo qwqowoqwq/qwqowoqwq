@@ -25,6 +25,9 @@ class QwQWidget(QtWidgets.QWidget):
 		self.animation.timeout.connect(self.timerFire)
 		self.animation.start(10)
 		self.oo_state = 0
+		self.freewalk = 5000
+		self.count = 500
+		self.walk = 0
 
 		#images of oo
 		self.oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
@@ -58,8 +61,37 @@ class QwQWidget(QtWidgets.QWidget):
 		pat.setBrush(QtGui.QPalette.Background, QtGui.QBrush(QtGui.QPixmap(picture)))
 		self.setPalette(pat)
 	
+	def walkChange(self):
+		if self.walk == 0:
+			self.walk = 1
+			self.drawPalette(self.oo_walk1)
+		if self.walk == 1:
+			self.walk = 2
+			self.drawPalette(self.oo_normal)
+		if self.walk == 2:
+			self.walk = 3
+			self.drawPalette(self.oo_walk2)
+		if self.walk == 3:
+			self.walk = 0
+			self.drawPalette(self.oo_normal)
+
+	def ooWalk(self):
+		if self.count > 0:
+			self.count -= 1
+		else:
+			self.count = 5
+			self.pos().x
+			self.pos().y
+			centerx = self.screenWidth/2
+			centery = self.screenHeight/2
+			diffx = self.pos().x() - centerx
+			diffy = self.pos().y() - centery
+			self.move(diffx/10,diffy/10)
+			self.walkChange()
+
 	def timerFire(self): 
 		if self.follow_mouse:
+			self.freewalk = 5000
 			if not self.angry1:
 				self.drawPalette(self.oo_angry1)
 				self.angry1 = True
@@ -67,8 +99,13 @@ class QwQWidget(QtWidgets.QWidget):
 				self.drawPalette(self.oo_angry2)
 				self.angry1 = False
 		else:
+			if self.freewalk > 0: self.freewalk -= 10
+			if self.freewalk <= 0: self.ooWalk() 
+			else: self.freewalk = False
 			if self.oo_state == 0: self.drawPalette(self.oo_normal)
 			else: self.drawPalette(self.oo_toothache)
+
+	
 		
 
 
@@ -82,6 +119,8 @@ class QwQWidget(QtWidgets.QWidget):
 		if event.button() == QtCore.Qt.RightButton:
 			self.follow_mouse = False
 			self.oo_state = random.randint(0, 1)
+			self.freewalk = 5000
+			self.walk = False
 			event.accept()
 
 
