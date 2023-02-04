@@ -11,10 +11,10 @@ class QwQWidget(QtWidgets.QWidget):
 		self.app = app
 		self.screenWidth = screenSize.width()
 		self.screenHeight = screenSize.height()
-		self.left = self.screenWidth - 400
-		self.top = self.screenHeight - 400
-		self.width = 300
-		self.height = 300
+		self.width = 200
+		self.height = 200
+		self.left = self.screenWidth - self.width - 100
+		self.top = self.screenHeight - self.height - 100
 		self.setMouseTracking(True)
 
 		self.follow_mouse = False
@@ -30,7 +30,7 @@ class QwQWidget(QtWidgets.QWidget):
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		self.randomPosition()
 		pic = QtWidgets.QLabel(self)
-		pic.setPixmap(QtGui.QPixmap("image.png"))
+		pic.setPixmap(QtGui.QPixmap("oo_normal.PNG"))
 		pic.show()
 		self.show()
 
