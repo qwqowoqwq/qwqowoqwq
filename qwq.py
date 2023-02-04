@@ -30,7 +30,8 @@ class QwQWidget(QtWidgets.QWidget):
 		self.setGeometry(self.left, self.top, self.width, self.height)
 		self.randomPosition()
 		pic = QtWidgets.QLabel(self)
-		pic.setPixmap(QtGui.QPixmap(QtGui.QImage("oo_normal", format = None)))
+		oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
+		pic.setPixmap(QtGui.QPixmap(oo_normal))
 		pic.show()
 		self.show()
 
