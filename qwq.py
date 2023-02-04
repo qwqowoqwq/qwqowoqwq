@@ -62,7 +62,7 @@ class QwQWidget(QtWidgets.QWidget):
 		self.move(width, height)
 	
 
-	def closeEvent(self):
+	def closeEvent(self, event):
 		quit()
 
 	def quit(self):
