@@ -8,6 +8,7 @@
 class Desktop {
 public:
     Desktop();
+
     bool deleteItem(int);
     int intersect(int left, int top, int width, int height);
     void printItemPositions() const;
@@ -35,7 +36,7 @@ Desktop::Desktop() {
         throw std::exception("OpenProcess error");
     }
 
-    LPPOINT ptMem = (LPPOINT)VirtualAllocEx(desktopProcHandle, NULL, sizeof(POINT), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    LPVOID ptMem = (LPPOINT)VirtualAllocEx(desktopProcHandle, NULL, sizeof(POINT), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!ptMem) {
         CloseHandle(desktopProcHandle);
         throw std::exception("VirtualAllocEx error");
