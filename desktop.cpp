@@ -99,6 +99,7 @@ int Desktop::intersect(int left, int top, int width, int height) {
             // Intersection
             bool res = deleteItem(index);
             count++;
+            return 1;
         } else {
             break;
         }

@@ -1,6 +1,10 @@
 import random
 import sys
-from PyQt5 import QtCore, QtWidgets, QtGui
+import ctypes
+from PyQt5 import QtCore, QtWidgets, QtGui, QtMultimedia
+
+if sys.platform == "win32":
+	desktop = ctypes.cdll.LoadLibrary("./desktop.dll")
 
 class QwQWidget(QtWidgets.QWidget):
 
@@ -90,6 +94,7 @@ class QwQWidget(QtWidgets.QWidget):
 			self.walkChange()
 
 	def timerFire(self): 
+		# OO Animation render
 		if self.follow_mouse:
 			self.freewalk = 5000
 			if not self.angry1:
@@ -105,8 +110,15 @@ class QwQWidget(QtWidgets.QWidget):
 			if self.oo_state == 0: self.drawPalette(self.oo_normal)
 			else: self.drawPalette(self.oo_toothache)
 
-	
-		
+		# Check file collision
+		if self.follow_mouse:
+			if sys.platform == "win32":
+				count = desktop.desktop_intersect(self.pos().x(), self.pos().y(),
+						self.width, self.height)
+				if count != 0:
+					print((self.pos().x(), self.pos().y(),
+							self.width, self.height))
+					print(count)
 
 
 	#When press left button of mouse, bind the position of mouse and desktop pet 
