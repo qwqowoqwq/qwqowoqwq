@@ -97,6 +97,12 @@ class QwQWidget(QtWidgets.QWidget):
 				self.walkChange()
 
 	def timerFire(self): 
+		# Check file collision
+		if self.follow_mouse:
+			if sys.platform == "win32":
+				self.eat = desktop.desktop_intersect(self.pos().x(), self.pos().y(),
+						self.width, self.height)
+
 		# OO Animation render
 		if self.eat != 0: self.eatcount = 500
 		if 490 <= self.eatcount <= 500: 
@@ -133,16 +139,6 @@ class QwQWidget(QtWidgets.QWidget):
 				return
 			if self.oo_state == 0: self.drawPalette(self.oo_normal)
 			else: self.drawPalette(self.oo_toothache)
-
-		# Check file collision
-		if self.follow_mouse:
-			if sys.platform == "win32":
-				self.eat = desktop.desktop_intersect(self.pos().x(), self.pos().y(),
-						self.width, self.height)
-				if self.eat != 0:
-					print((self.pos().x(), self.pos().y(),
-							self.width, self.height))
-					print(count)
 
 
 	#When press left button of mouse, bind the position of mouse and desktop pet 
