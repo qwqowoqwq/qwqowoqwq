@@ -33,7 +33,8 @@ class QwQWidget(QtWidgets.QWidget):
 		self.count = 500
 		self.walk = 0
 		self.eat = 0
-		self.eatcount = 0
+		self.eatcount = 500
+		self.musicplay = False
 
 		#images of oo
 		self.oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
@@ -46,6 +47,7 @@ class QwQWidget(QtWidgets.QWidget):
 		self.oo_toothache = QtGui.QImage.scaled(QtGui.QImage("oo_toothache.png", format = None), self.width, self.height)
 		self.oo_walk1 = QtGui.QImage.scaled(QtGui.QImage("oo_walk1.png", format = None), self.width, self.height)
 		self.oo_walk2 = QtGui.QImage.scaled(QtGui.QImage("oo_walk2.png", format = None), self.width, self.height)
+		self.oo_music = QtGui.QImage.scaled(QtGui.QImage("oo_music.png", format = None), self.width, self.height)
 
 		self.initUI()
 
@@ -118,6 +120,9 @@ class QwQWidget(QtWidgets.QWidget):
 			else: 
 				self.drawPalette(self.oo_eat2)
 			return
+		if self.musicplay:
+			self.drawPalette(self.oo_music)
+			return
 		if self.follow_mouse:
 			self.freewalk = 5000
 			if not self.angry1:
@@ -158,7 +163,19 @@ class QwQWidget(QtWidgets.QWidget):
 			self.freewalk = 5000
 			self.walk = False
 			event.accept()
-
+	
+	# def keyPressed(self, keyboard):
+	# 	if keyboard.is_pressed(" "):
+	# 		print("space detected")
+	 
+	def keyPressEvent(self, event):
+		if event.key() == QtCore.Qt.Key_Space:
+			self.music = QtMultimedia.QSound("qhj.wav")
+			self.musicplay = True
+			self.music.play()
+		if event.key() == QtCore.Qt.Key_O:
+			self.musicplay = False
+			self.music.stop()
 
 	#When the mouse move, desktop pet moves
 	def mouseMoveEvent(self, event):
