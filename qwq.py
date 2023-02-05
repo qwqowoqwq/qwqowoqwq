@@ -129,6 +129,8 @@ class QwQWidget(QtWidgets.QWidget):
 		if self.musicplay:
 			self.drawPalette(self.oo_music)
 			return
+		else:
+			self.drawPalette(self.oo_normal)
 		if self.follow_mouse:
 			self.freewalk = 5000
 			if not self.angry1:
@@ -159,10 +161,6 @@ class QwQWidget(QtWidgets.QWidget):
 			self.freewalk = 5000
 			self.walk = False
 			event.accept()
-	
-	# def keyPressed(self, keyboard):
-	# 	if keyboard.is_pressed(" "):
-	# 		print("space detected")
 	 
 	def keyPressEvent(self, event):
 		if event.key() == QtCore.Qt.Key_Space:
