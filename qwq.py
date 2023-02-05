@@ -35,6 +35,7 @@ class QwQWidget(QtWidgets.QWidget):
 		self.eat = 0
 		self.eatcount = 500
 		self.musicplay = False
+		self.musicmotion = False
 
 		#images of oo
 		self.oo_normal = QtGui.QImage.scaled(QtGui.QImage("oo_normal.png", format = None), self.width, self.height)
@@ -128,9 +129,11 @@ class QwQWidget(QtWidgets.QWidget):
 			return
 		if self.musicplay:
 			self.drawPalette(self.oo_music)
+			self.musicmotion = True
 			return
-		else:
+		elif self.musicmotion:
 			self.drawPalette(self.oo_normal)
+			self.musicmotion = False
 		if self.follow_mouse:
 			self.freewalk = 5000
 			if not self.angry1:
